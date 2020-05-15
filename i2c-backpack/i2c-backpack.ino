@@ -69,16 +69,21 @@ DallasTemperature sensors11(&oneWire11);
 DallasTemperature sensors12(&oneWire12);
 DallasTemperature sensors13(&oneWire13);
 
-bool DEBUG = false;
+bool TH_DEBUG = false;
 float temperatures[14]; // = {0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00}; // array of 14 floats
 float currentTemp[14]; // = {0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00}; // working temp
+
+const int maxlength = 64;
+char buffer[maxlength];
+char printable[maxlength];
+int received = 0;
 
 void setup()
 {
   
   Wire.begin(2);                // join i2c bus with address #2
   Wire.onReceive(receiveEvent); // register event
-  Serial.begin(57600);           // start serial for output
+  Serial.begin(115200);           // start serial for output
 
   // start serial port
   Serial.println("Dallas Temperature I2C Control");
@@ -144,7 +149,7 @@ void sensorLoop() {
     if(index == 13) { currentTemp[index] = float(sensors13.getTempCByIndex(0)); }
     
     verifyTemp(index);
-    if(DEBUG) {
+    if(TH_DEBUG) {
       Serial.print(index);
       Serial.print(" Temperature is: ");
       Serial.print(currentTemp[index]); 
@@ -153,7 +158,10 @@ void sensorLoop() {
     }
 
 
-//    delay(30); //!??!
+    
+
+
+
   }  
 
 
@@ -162,13 +170,24 @@ void sensorLoop() {
 void loop()
 {
 //  Serial.println("loop start");
-  sensorLoop();
-  delay(2000);
+//  sensorLoop();
+//  delay(2000);
+
+
+  if (received > 0) {
+    memcpy(printable, buffer, maxlength);
+
+    for (int i = 0; i < received; i++) {
+      Serial.print(printable[i]);
+    }
+    Serial.println(""); 
+    received = 0;
+  }
 }
 
 // function that executes whenever data is received from master
 // this function is registered as an event, see setup()
-
+/*
 void receiveEvent(int howMany)
 {
   while(1 < Wire.available()) // loop through all but the last
@@ -178,4 +197,15 @@ void receiveEvent(int howMany)
   }
   int x = Wire.read();    // receive byte as an integer
   Serial.println(x);         // print the integer
+}
+*/
+
+// from: https://github.com/rwaldron/johnny-five/issues/1184
+void receiveEvent(int howMany) {
+  received = howMany;
+  memset(buffer, 0, maxlength);
+
+  for (int i = 0; i < howMany; i++) {
+    buffer[i] = Wire.read();
+  }
 }
