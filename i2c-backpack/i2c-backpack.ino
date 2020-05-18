@@ -2,6 +2,7 @@
 #include <DallasTemperature.h>
 #include <Wire.h>
 
+int I2C_ADDRESS = 2;
 bool ENABLE_SERIAL = false;
 bool TH_DEBUG = false;
 float currentTemp[14];
@@ -62,12 +63,10 @@ DallasTemperature sensors12(&oneWire12);
 DallasTemperature sensors13(&oneWire13);
 
 void setup() {
-  Wire.begin(2);                // join i2c bus with address #2
+  Wire.begin(I2C_ADDRESS); // join i2c bus with address #2
   Wire.onRequest(requestEvent);
   if(ENABLE_SERIAL) {
-    Serial.begin(115200);           // start serial for output
-  
-    // start serial port
+    Serial.begin(115200); // start serial for output
     Serial.println("I2C backpack controller for Dallas DS18B20 temperatures");  
   }
 
