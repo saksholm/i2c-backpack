@@ -4,10 +4,10 @@
 
 bool ENABLE_SERIAL = false;
 bool TH_DEBUG = false;
-float currentTemp[14]; // = {0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00}; // working temp
+float currentTemp[14];
 int temperatures[14] = {-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768};
 
-const int cycle = 2*1000;
+const int sensorCycle = 2*1000;
 const int sensorScale = 100;
 unsigned long sensorLoopMillis = 0;
 unsigned long currentMillis = 0;
@@ -118,7 +118,7 @@ void debugTemperatures(int index) {
 
 void sensorLoop() {
 
-  if(currentMillis >= sensorLoopMillis + cycle) {
+  if(currentMillis >= sensorLoopMillis + sensorCycle) {
     // store new value to sensorLoopMillis
     sensorLoopMillis = currentMillis;
 
