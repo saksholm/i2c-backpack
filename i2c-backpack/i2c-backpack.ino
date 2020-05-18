@@ -12,39 +12,22 @@ const int sensorCycle = 2*1000;
 const int sensorScale = 100;
 unsigned long sensorLoopMillis = 0;
 unsigned long currentMillis = 0;
-
-// IO pins:
-#define ONE_WIRE_BUS1 0
-#define ONE_WIRE_BUS2 1
-#define ONE_WIRE_BUS3 2
-#define ONE_WIRE_BUS4 3
-#define ONE_WIRE_BUS5 4
-#define ONE_WIRE_BUS6 5
-#define ONE_WIRE_BUS7 6
-#define ONE_WIRE_BUS8 7
-#define ONE_WIRE_BUS9 8
-#define ONE_WIRE_BUS10 9
-#define ONE_WIRE_BUS11 10
-#define ONE_WIRE_BUS12 11
-#define ONE_WIRE_BUS13 12
-#define ONE_WIRE_BUS14 13
-
  
-// OneWire instances:
-OneWire oneWire0(ONE_WIRE_BUS1);
-OneWire oneWire1(ONE_WIRE_BUS2);
-OneWire oneWire2(ONE_WIRE_BUS3);
-OneWire oneWire3(ONE_WIRE_BUS4);
-OneWire oneWire4(ONE_WIRE_BUS5);
-OneWire oneWire5(ONE_WIRE_BUS6);
-OneWire oneWire6(ONE_WIRE_BUS7);
-OneWire oneWire7(ONE_WIRE_BUS8);
-OneWire oneWire8(ONE_WIRE_BUS9);
-OneWire oneWire9(ONE_WIRE_BUS10);
-OneWire oneWire10(ONE_WIRE_BUS11);
-OneWire oneWire11(ONE_WIRE_BUS12);
-OneWire oneWire12(ONE_WIRE_BUS13);
-OneWire oneWire13(ONE_WIRE_BUS14);
+// OneWire instances (IO pin):
+OneWire oneWire0(0);
+OneWire oneWire1(1);
+OneWire oneWire2(2);
+OneWire oneWire3(3);
+OneWire oneWire4(4);
+OneWire oneWire5(5);
+OneWire oneWire6(6);
+OneWire oneWire7(7);
+OneWire oneWire8(8);
+OneWire oneWire9(9);
+OneWire oneWire10(10);
+OneWire oneWire11(11);
+OneWire oneWire12(12);
+OneWire oneWire13(13);
 
 // initialising sensors
 DallasTemperature sensors0(&oneWire0);
