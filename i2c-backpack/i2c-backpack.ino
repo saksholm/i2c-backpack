@@ -8,6 +8,7 @@ bool ENABLE_SERIAL = false;
 bool TH_DEBUG = false;
 float currentTemp[14];
 int temperatures[14] = {-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768};
+int requestedRegister;
 
 const int sensorCycle = 2*1000;
 const int sensorScale = 100;
@@ -53,6 +54,7 @@ void setup() {
   
   Wire.begin(I2C_ADDRESS); // join i2c bus with address #2
   Wire.onRequest(requestEvent);
+  Wire.onReceive(receiveEvent);
   if(ENABLE_SERIAL) {
     Serial.begin(115200); // start serial for output
     Serial.println("I2C backpack controller for Dallas DS18B20 temperatures");  
@@ -144,13 +146,30 @@ void sensorLoop() {
   }
 }  
 
-void requestEvent(int howMany) {
-  if(ENABLE_SERIAL) Serial.println("sending...");
+void receiveEvent(int howMany) {
+  int readReg = Wire.read();
+  if(readReg == -1) {
+    requestedRegister = 0;
+  } else {
+    requestedRegister = readReg;
+  }
+}
 
-  for(int i=0, th=0;i<28;i++) {
-    Wire.write(temperatures[th] >> 8);
-    Wire.write(temperatures[th]);
-    th++;
+void requestEvent() {
+  spl("sending...");
+
+  sp("register: ");
+  spl((String)requestedRegister);
+
+  if(requestedRegister > 0) {
+    Wire.write(temperatures[requestedRegister] >> 8);
+    Wire.write(temperatures[requestedRegister]);
+  } else {
+    for(int i=0, th=0;i<28;i++) {
+      Wire.write(temperatures[th] >> 8);
+      Wire.write(temperatures[th]);
+      th++;
+    }    
   }
 }
 
