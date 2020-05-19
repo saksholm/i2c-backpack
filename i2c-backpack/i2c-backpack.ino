@@ -1,6 +1,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Wire.h>
+#include "MemoryFree.h"
 
 int I2C_ADDRESS = 2;
 bool ENABLE_SERIAL = false;
@@ -12,6 +13,7 @@ const int sensorCycle = 2*1000;
 const int sensorScale = 100;
 unsigned long sensorLoopMillis = 0;
 unsigned long currentMillis = 0;
+unsigned long memoryLeakMillis = 0;
  
 // OneWire instances (IO pin):
 OneWire oneWire0(0);
@@ -29,6 +31,7 @@ OneWire oneWire11(11);
 OneWire oneWire12(12);
 OneWire oneWire13(13);
 
+
 // initialising sensors
 DallasTemperature sensors0(&oneWire0);
 DallasTemperature sensors1(&oneWire1);
@@ -45,15 +48,18 @@ DallasTemperature sensors11(&oneWire11);
 DallasTemperature sensors12(&oneWire12);
 DallasTemperature sensors13(&oneWire13);
 
+
 void setup() {
+  
   Wire.begin(I2C_ADDRESS); // join i2c bus with address #2
   Wire.onRequest(requestEvent);
   if(ENABLE_SERIAL) {
     Serial.begin(115200); // start serial for output
     Serial.println("I2C backpack controller for Dallas DS18B20 temperatures");  
   }
-
-  // start sensors
+  
+  spl("starting initial loop");
+  
   sensors0.begin();  
   sensors1.begin();
   sensors2.begin();
@@ -68,7 +74,17 @@ void setup() {
   sensors11.begin();
   sensors12.begin();
   sensors13.begin();
+
+  spl("SETUP DONE!");
 }
+
+void sp(String line) {
+  if(ENABLE_SERIAL) Serial.print(line);
+};
+
+void spl(String line) {
+  if(ENABLE_SERIAL) Serial.println(line);
+};
 
 void verifyTemp(int index) {
   // we dont want to update failed temperatures
@@ -89,12 +105,13 @@ void readTemperature(int index, DallasTemperature sensor) {
 }
 
 void debugTemperatures(int index) {
-  if(ENABLE_SERIAL) {
+  if(ENABLE_SERIAL && TH_DEBUG) {
+    Serial.print("Temperature sensor (index): ");
     Serial.print(index);
     Serial.print(" Temperature is... current: ");
     Serial.print(currentTemp[index]); 
     Serial.print(" / int:");
-    Serial.print(temperatures[index]);
+    Serial.println(temperatures[index]);
   }
 }
 
@@ -105,7 +122,7 @@ void sensorLoop() {
     sensorLoopMillis = currentMillis;
 
     for(int index=0; index < 14; index++) {  
-      
+
       if(index == 0) readTemperature(index,sensors0);
       if(index == 1) readTemperature(index,sensors1);
       if(index == 2) readTemperature(index,sensors2);
@@ -120,7 +137,7 @@ void sensorLoop() {
       if(index == 11) readTemperature(index,sensors11);
       if(index == 12) readTemperature(index,sensors12);
       if(index == 13) readTemperature(index,sensors13);
-
+      
       if(TH_DEBUG) debugTemperatures(index);
       
     }
@@ -137,7 +154,16 @@ void requestEvent(int howMany) {
   }
 }
 
+void memoryLeak() {
+  if(currentMillis >= memoryLeakMillis + 5000) {
+    sp("freeMemory()=");
+    spl((String)freeMemory());
+    memoryLeakMillis = currentMillis;
+  }
+}
+
 void loop() {
   currentMillis = millis(); 
   sensorLoop();
+  memoryLeak();
 }
