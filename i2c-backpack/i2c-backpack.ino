@@ -149,7 +149,9 @@ void sensorLoop() {
 void receiveEvent(int howMany) {
   int readReg = Wire.read();
   if(readReg == -1) {
-    requestedRegister = 0;
+    requestedRegister = -1;
+  } else if (readReg == 99) {
+    requestedRegister = -1;
   } else {
     requestedRegister = readReg;
   }
@@ -161,7 +163,7 @@ void requestEvent() {
   sp("register: ");
   spl((String)requestedRegister);
 
-  if(requestedRegister > 0) {
+  if(requestedRegister >= 0) {
     Wire.write(temperatures[requestedRegister] >> 8);
     Wire.write(temperatures[requestedRegister]);
   } else {
